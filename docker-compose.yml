@@ -1,0 +1,12 @@
+version: "1.0"
+
+services:
+  localstack:
+    container_name: localstack
+    image: localstack/localstack
+    ports:
+      - 127.0.0.1:4566:4566
+    environment:
+      - AWS_ACCESS_KEY_ID=dummy
+      - AWS_SECRET_ACCESS_KEY=dummy
+      - DEFAULT_REGION=ap-northeast-1
