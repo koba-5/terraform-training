@@ -1,0 +1,42 @@
+name: ci
+
+on:
+  workflow_dispatch:
+  push:
+    branches:
+      - develop
+      - feature-**
+    path:
+      - infra/**
+
+jobs:
+  ci:
+    runs-on: ubuntu-latest
+    defaults:
+      run:
+        working-directory: ./infra/env/local
+    steps:
+      - uses: actions/checkout@v3
+      - uses: actions/setup-node@v4
+        with:
+          node-version-file: test/package.json
+      - uses: hashicorp/setup-terraform@v2
+        with:
+          terraform_version: 1.10.4
+      - name: Check format
+        run: terraform fmt -check -recursive
+      - name: Init
+        run: terraform init
+      - name: Check validate
+        run: terraform validate
+      - name: Plan
+        run: terraform plan -input=false
+      - name: Set up LocalStack
+        run: docker compose up localstack -d
+      - name: Apply
+        run: terraform apply -auto-approve
+      - name: test
+        run: |
+          npm i
+          npm run test
+        working-directory: ./test
